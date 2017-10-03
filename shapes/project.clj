@@ -1,4 +1,4 @@
-(defproject shapes "0.1.0-SNAPSHOT"
+(defproject maria/shapes "0.1.0-SNAPSHOT"
   :description "A shapes library"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
