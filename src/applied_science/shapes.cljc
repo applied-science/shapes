@@ -20,7 +20,7 @@
                    event-2 listener-2]
                   (butlast args)))))
 
-(deftype BBox [x1 y1 x2 y2])
+(defrecord BBox [x1 y1 x2 y2])
 
 (defrecord Shape [kind x y height width stroke stroke-width fill ; universal
                   rotate opacity bbox
@@ -277,22 +277,24 @@
 ;; compositing functions
 
 (defn points-bbox [pts]
-  (let [box (->BBox MAX_INT MAX_INT MIN_INT MIN_INT)]
-    (doseq [[x y] (partition 2 pts)]
-      (set! (.-x1 box) (min x (.-x1 box)))
-      (set! (.-y1 box) (min y (.-y1 box)))
-      (set! (.-x2 box) (max x (.-x2 box)))
-      (set! (.-y2 box) (max y (.-y2 box))))
-    box))
+  (reduce (fn [box [x y]]
+            (assoc box
+                   :x1 (min x (:x1 box))
+                   :y1 (min y (:y1 box))
+                   :x2 (max x (:x2 box))
+                   :y2 (max y (:y2 box))))
+          (->BBox MAX_INT MAX_INT MIN_INT MIN_INT)
+          (partition 2 pts)))
 
 (defn max-bbox ^BBox [boxes]
-  (let [box (->BBox MAX_INT MAX_INT MIN_INT MIN_INT)]
-    (doseq [^BBox b boxes]
-      (set! (.-x1 box) (min (.-x1 b) (.-x1 box)))
-      (set! (.-y1 box) (min (.-y1 b) (.-y1 box)))
-      (set! (.-x2 box) (max (.-x2 b) (.-x2 box)))
-      (set! (.-y2 box) (max (.-y2 b) (.-y2 box))))
-    box))
+  (reduce (fn [box b]
+            (assoc box
+                   :x1 (min (:x1 b) (:x1 box))
+                   :y1 (min (:y1 b) (:y1 box))
+                   :x2 (max (:x2 b) (:x2 box))
+                   :y2 (max (:y2 b) (:y2 box))))
+          (->BBox MAX_INT MAX_INT MIN_INT MIN_INT)
+          boxes))
 
 (defn ^BBox bbox ^BBox [^Shape shape]
   ;; TODO should expand bounds as stroke-width grows
