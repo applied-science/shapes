@@ -1,4 +1,4 @@
-(ns shapes.core)
+(ns applied-science.shapes)
 
 ;; TODO add spec annotations!
 ;; TODO re-implement this mess using a transform matrix
