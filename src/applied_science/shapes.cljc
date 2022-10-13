@@ -277,22 +277,34 @@
 ;; compositing functions
 
 (defn points-bbox [pts]
-  (let [box (->BBox MAX_INT MAX_INT MIN_INT MIN_INT)]
-    (doseq [[x y] (partition 2 pts)]
-      (set! (.-x1 box) (min x (.-x1 box)))
-      (set! (.-y1 box) (min y (.-y1 box)))
-      (set! (.-x2 box) (max x (.-x2 box)))
-      (set! (.-y2 box) (max y (.-y2 box))))
-    box))
+  (loop [x1 MAX_INT
+         y1 MAX_INT
+         x2 MIN_INT
+         y2 MIN_INT
+         pairs (seq (partition 2 pts))]
+    (if pairs
+      (let [[x y] (first pairs)]
+        (recur (min x x1)
+               (min y y1)
+               (max x x2)
+               (max y y2)
+               (next pairs)))
+      (->BBox x1 y1 x2 y2))))
 
 (defn max-bbox ^BBox [boxes]
-  (let [box (->BBox MAX_INT MAX_INT MIN_INT MIN_INT)]
-    (doseq [^BBox b boxes]
-      (set! (.-x1 box) (min (.-x1 b) (.-x1 box)))
-      (set! (.-y1 box) (min (.-y1 b) (.-y1 box)))
-      (set! (.-x2 box) (max (.-x2 b) (.-x2 box)))
-      (set! (.-y2 box) (max (.-y2 b) (.-y2 box))))
-    box))
+  (loop [x1 MAX_INT
+         y1 MAX_INT
+         x2 MIN_INT
+         y2 MIN_INT
+         boxes (seq boxes)]
+    (if boxes
+      (let [^BBox b (first boxes)]
+        (recur (min (.-x1 b) x1)
+               (min (.-y1 b) y1)
+               (max (.-x2 b) x2)
+               (max (.-y2 b) y2)
+               (next boxes)))
+      (->BBox x1 y1 x2 y2))))
 
 (defn ^BBox bbox ^BBox [^Shape shape]
   ;; TODO should expand bounds as stroke-width grows
