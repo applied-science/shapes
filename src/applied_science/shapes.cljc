@@ -39,7 +39,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; helpers for param checks
 
 (defn assert-number [message x]
-  #?(:cljs (if (js/isNaN x)
+  #?(:clj (if (number? x)
+            x
+            (try (Float/parseFloat x)
+                 (catch Exception e
+                   (throw (ex-info message
+                                   {:not-a-number x})))))
+     :cljs (if (js/isNaN x)
              (throw (js/Error. message))
              (js/parseFloat x))))
 
