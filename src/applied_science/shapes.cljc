@@ -177,7 +177,7 @@
   [size]
   (assert-number "size must be a number!" size)
   (let [h (* 0.8660259 size)]
-    (assoc (polygon [0 size (/ size 2) (- size h) size size])
+    (assoc (polygon [0 size (float (/ size 2)) (- size h) size size])
            :stroke "none"
            :stroke-width 0
            :fill "black")))
